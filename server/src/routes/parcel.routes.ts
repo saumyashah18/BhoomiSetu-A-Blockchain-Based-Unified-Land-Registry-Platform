@@ -14,6 +14,28 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.post('/transfer', async (req, res) => {
+    try {
+        const { assetId, newOwnerId, user } = req.body;
+        // Generate a random Request ID for now
+        const requestId = 'REQ_' + Date.now();
+        const result = await parcelService.initiateTransfer(requestId, assetId, newOwnerId, user);
+        res.status(200).json(result);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+router.post('/approve-transfer', async (req, res) => {
+    try {
+        const { requestId, user } = req.body;
+        const result = await parcelService.approveTransfer(requestId, user);
+        res.status(200).json(result);
+    } catch (error: any) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
 router.get('/:ulpin', async (req, res) => {
     try {
         const { ulpin } = req.params;

@@ -55,6 +55,31 @@ class ParcelService {
             gateway.disconnect();
         }
     }
+    async initiateTransfer(requestId, ulpin, newOwnerId, user) {
+        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'ParcelContract', user);
+        try {
+            const newOwners = [{ ownerId: newOwnerId, ownershipType: 'FULL', sharePercentage: 100 }];
+            await contract.submitTransaction('InitiateTransfer', requestId, ulpin, JSON.stringify(newOwners), JSON.stringify([]) // Supporting docs
+            );
+            return { success: true, requestId, status: 'PENDING' };
+        }
+        finally {
+            gateway.disconnect();
+        }
+    }
+    async approveTransfer(requestId, user) {
+        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'ParcelContract', user);
+        try {
+            await contract.submitTransaction('ApproveTransfer', requestId);
+            // Generate hash for public proof
+            const hash = crypto.createHash('sha256').update(requestId + Date.now()).digest('hex');
+            await this.anchorService.anchorFabricEvent(requestId, 'TRANSFER_APPROVED', '0x' + hash);
+            return { success: true, requestId, status: 'APPROVED', hash };
+        }
+        finally {
+            gateway.disconnect();
+        }
+    }
     async getParcel(ulpin, user) {
         const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'ParcelContract', user);
         try {

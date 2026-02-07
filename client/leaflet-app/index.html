@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LandDigit - GIS Ownership Visualization</title>
+    <!-- SEO -->
+    <meta name="description"
+        content="Interactive land ownership visualization platform using Leaflet.js and Satellite Imagery.">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <!-- UI Overlay -->
+    <div class="ui-container top-left">
+        <header class="glass-panel">
+            <h1>LandDigit <span>GIS</span></h1>
+            <p>Cadastral Visualization System</p>
+        </header>
+
+        <div class="search-box glass-panel">
+            <input type="text" id="blockSearch" placeholder="Search ULPIN or Block ID...">
+            <button id="searchBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <div class="ui-container bottom-right">
+        <div id="legend" class="glass-panel">
+            <h3>Ownership Legend</h3>
+            <div class="legend-item">
+                <span class="color-box public"></span>
+                <span class="label">Public Owned</span>
+            </div>
+            <div class="legend-item">
+                <span class="color-box private"></span>
+                <span class="label">Private Owned</span>
+            </div>
+            <hr>
+            <div class="control-item">
+                <label class="toggle-container">
+                    <span>Show Parcels</span>
+                    <input type="checkbox" id="layerToggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="control-item">
+                <label for="opacitySlider">Parcel Opacity</label>
+                <input type="range" id="opacitySlider" min="0" max="100" value="60">
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="app.js"></script>
+</body>
+
+</html>

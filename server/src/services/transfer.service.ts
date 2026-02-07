@@ -10,20 +10,22 @@ export class TransferService {
     }
 
     public async transferAsset(assetId: string, newOwnerId: string, user: string) {
-        const hash = crypto.createHash('sha256').update(`${assetId}-${newOwnerId}-${Date.now()}`).digest('hex');
+        // Generate a random Request ID
+        const requestId = 'REQ_' + Date.now();
 
-        const { gateway, contract } = await getFabricContract('mychannel', 'TransferContract', user);
+        const { gateway, contract } = await getFabricContract('mychannel', 'ParcelContract', user);
         try {
+            const newOwners = [{ ownerId: newOwnerId, ownershipType: 'FULL', sharePercentage: 100 }];
+
             await contract.submitTransaction(
-                'TransferAsset',
+                'InitiateTransfer',
+                requestId,
                 assetId,
-                newOwnerId,
-                hash
+                JSON.stringify(newOwners),
+                JSON.stringify([])
             );
 
-            await this.anchorService.anchorFabricEvent(assetId, 'TRANSFER', '0x' + hash);
-
-            return { success: true, assetId, hash };
+            return { success: true, requestId, status: 'PENDING_APPROVAL', message: 'Transfer initiated. Waiting for Registrar approval.' };
         } finally {
             gateway.disconnect();
         }
