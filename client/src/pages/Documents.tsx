@@ -40,7 +40,7 @@ export const Documents: React.FC = () => {
                                 </p>
                                 <div className="flex items-center gap-2 mt-1 md:hidden">
                                     <span className="text-xs text-text-muted">{doc.date}</span>
-                                    <Badge label={doc.status} variant={doc.status === 'Verified' ? 'success' : 'warning'} size="sm" />
+                                    <Badge label={doc.status} variant={doc.status === 'Verified' ? 'success' : 'warning'} />
                                 </div>
                             </div>
                         </div>
