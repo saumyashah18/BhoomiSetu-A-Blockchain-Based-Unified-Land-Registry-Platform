@@ -1,7 +1,7 @@
 
 """
 Simplified RAG Server for Bhoomika
-Uses Local SentenceTransformers (BAAI/bge-large-en-v1.5) and Google Gemini (Generation).
+Uses Local SentenceTransformers (BAAI/bge-large-en-v1.5) and DeepSeek (via OpenRouter).
 """
 import os
 import sys
@@ -14,7 +14,7 @@ from typing import List, Dict, Any, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from google import genai
+from openai import OpenAI
 from sqlalchemy import create_engine, Column, String, Text, Integer, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -30,12 +30,15 @@ FAISS_INDEX_PATH = os.path.join(DATA_DIR, "faiss_index")
 SQLITE_DB_PATH = os.path.join(DATA_DIR, "bhoomika.db")
 
 # API Keys
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 EMBEDDING_MODEL = "BAAI/bge-large-en-v1.5"
 
-# Configure GenAI
-# Configure GenAI
-client = genai.Client(api_key=GEMINI_API_KEY)
+# Configure OpenAI (OpenRouter)
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=OPENROUTER_API_KEY,
+)
+MODEL_NAME = "deepseek/deepseek-r1:free"
 
 # --- DB & MODELS ---
 Base = declarative_base()
@@ -172,21 +175,26 @@ User Question: {request.message}
         from fastapi.responses import StreamingResponse
         async def response_generator():
             try:
-                # Streaming with google-genai
-                for chunk in client.models.generate_content_stream(
-                    model='gemini-2.0-flash', 
-                    contents=system_prompt,
-                    config={'response_mime_type': 'text/plain'}
-                ):
-                    if chunk.text:
-                        yield chunk.text
+                # Streaming with OpenAI (OpenRouter)
+                stream = client.chat.completions.create(
+                    model=MODEL_NAME,
+                    messages=[{"role": "user", "content": system_prompt}],
+                    stream=True
+                )
+                for chunk in stream:
+                    content = chunk.choices[0].delta.content
+                    if content:
+                        yield content
             except Exception as e:
                 yield f"Error generating response: {e}"
         return StreamingResponse(response_generator(), media_type="text/plain")
     else:
         try:
-            response = client.models.generate_content(model='gemini-2.0-flash', contents=system_prompt)
-            return {"response": response.text, "sources": source_ids}
+            completion = client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=[{"role": "user", "content": system_prompt}]
+            )
+            return {"response": completion.choices[0].message.content, "sources": source_ids}
         except Exception as e:
             return {"response": f"Error: {e}", "sources": []}
 

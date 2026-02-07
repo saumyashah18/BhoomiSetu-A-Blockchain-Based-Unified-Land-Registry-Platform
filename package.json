@@ -7,6 +7,10 @@
     "chaincode:install": "cd chaincode/land-registry && npm install",
     "install:all": "npm run server:install && npm run chaincode:install",
     "server:dev": "cd server && npm run dev",
+    "rag:dev": "python bhoomika/simple_rag_server.py",
+    "client:dev": "cd client && npm run dev",
+    "start:backend": "concurrently \"npm run server:dev\" \"npm run rag:dev\"",
+    "start:frontend": "npm run client:dev",
     "chaincode:build": "cd chaincode/land-registry && npm run build"
   },
   "keywords": [
@@ -17,5 +21,8 @@
     "india"
   ],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
 }

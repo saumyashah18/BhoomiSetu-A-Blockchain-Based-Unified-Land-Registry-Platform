@@ -223,7 +223,7 @@ export const BhoomikaChat: React.FC<BhoomikaChatProps> = ({ className }) => {
                                             : 'bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 text-gray-800 dark:text-gray-200 rounded-tl-none'
                                             }`}
                                     >
-                                        <div className={`prose prose-sm max-w-none ${msg.role === 'user' ? 'prose-invert text-white' : 'text-gray-800'}`}>
+                                        <div className={`prose prose-sm max-w-none ${msg.role === 'user' ? 'prose-invert text-white' : 'text-gray-800 dark:text-gray-200 dark:prose-invert'}`}>
                                             <ReactMarkdown remarkPlugins={[remarkGfm]}>
                                                 {msg.content}
                                             </ReactMarkdown>
