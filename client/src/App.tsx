@@ -8,6 +8,8 @@ import { Documents } from './pages/Documents';
 import { Transfer } from './pages/Transfer';
 import { TransferSelect } from './pages/TransferSelect';
 import { KYCVerification } from './pages/KYCVerification';
+import { RegistrarLogin } from './pages/RegistrarLogin';
+import { RegistrarCallback } from './pages/RegistrarCallback';
 import { Audit } from './pages/Audit';
 import { RoleGuard } from './components/RoleGuard';
 import { Layout } from './components/Layout';
@@ -46,8 +48,15 @@ function App() {
             <Route path="/property/:id" element={<PropertyView />} />
             <Route path="/transfer/:id" element={<Transfer />} />
             <Route path="/transfer" element={<TransferSelect />} />
-            <Route path="/kyc" element={<KYCVerification />} />
+            <Route path="/kyc" element={
+              <RoleGuard allowedRoles={['citizen', 'registrar']} userRole="citizen">
+                <KYCVerification />
+              </RoleGuard>
+            } />
             <Route path="/audit" element={<Audit />} />
+
+            <Route path="/registrar/login" element={<RegistrarLogin />} />
+            <Route path="/registrar/callback" element={<RegistrarCallback />} />
 
             <Route path="/" element={<Navigate to="/login" replace />} />
           </Routes>
