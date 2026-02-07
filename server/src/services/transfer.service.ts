@@ -13,7 +13,7 @@ export class TransferService {
         // Generate a random Request ID
         const requestId = 'REQ_' + Date.now();
 
-        const { gateway, contract } = await getFabricContract('mychannel', 'ParcelContract', user);
+        const { gateway, contract } = await getFabricContract('mychannel', 'landregistry', 'ParcelContract', user);
         try {
             const newOwners = [{ ownerId: newOwnerId, ownershipType: 'FULL', sharePercentage: 100 }];
 

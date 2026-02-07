@@ -9,6 +9,7 @@ import { Transfer } from './pages/Transfer';
 import { TransferSelect } from './pages/TransferSelect';
 import { KYCVerification } from './pages/KYCVerification';
 import { Audit } from './pages/Audit';
+import { Evaluation } from './pages/Evaluation';
 import { RoleGuard } from './components/RoleGuard';
 import { Layout } from './components/Layout';
 import { AuthProvider } from './contexts/AuthContext';
@@ -48,6 +49,7 @@ function App() {
             <Route path="/transfer" element={<TransferSelect />} />
             <Route path="/kyc" element={<KYCVerification />} />
             <Route path="/audit" element={<Audit />} />
+            <Route path="/evaluation" element={<Evaluation />} />
 
             <Route path="/" element={<Navigate to="/login" replace />} />
           </Routes>

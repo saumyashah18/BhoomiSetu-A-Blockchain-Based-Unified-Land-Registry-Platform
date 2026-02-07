@@ -12,7 +12,7 @@ export class UnitService {
     public async createUnit(data: any, user: string) {
         const hash = crypto.createHash('sha256').update(JSON.stringify(data) + Date.now()).digest('hex');
 
-        const { gateway, contract } = await getFabricContract('mychannel', 'UnitContract', user);
+        const { gateway, contract } = await getFabricContract('mychannel', 'landregistry', 'UnitContract', user);
         try {
             await contract.submitTransaction(
                 'CreateUnit',
@@ -32,7 +32,7 @@ export class UnitService {
     }
 
     public async getUnit(unitId: string, user: string) {
-        const { gateway, contract } = await getFabricContract('mychannel', 'UnitContract', user);
+        const { gateway, contract } = await getFabricContract('mychannel', 'landregistry', 'UnitContract', user);
         try {
             const result = await contract.evaluateTransaction('QueryUnit', unitId);
             return JSON.parse(result.toString());
@@ -42,7 +42,7 @@ export class UnitService {
     }
 
     public async getUnitsByParcel(parentUlpin: string, user: string) {
-        const { gateway, contract } = await getFabricContract('mychannel', 'UnitContract', user);
+        const { gateway, contract } = await getFabricContract('mychannel', 'landregistry', 'UnitContract', user);
         try {
             const result = await contract.evaluateTransaction('QueryUnitsByParcel', parentUlpin);
             return JSON.parse(result.toString());

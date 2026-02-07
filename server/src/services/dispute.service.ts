@@ -12,7 +12,7 @@ export class DisputeService {
     public async raiseDispute(assetId: string, reason: string, user: string) {
         const disputeId = crypto.createHash('sha256').update(`DISPUTE-${assetId}-${Date.now()}`).digest('hex');
 
-        const { gateway, contract } = await getFabricContract('mychannel', 'DisputeContract', user);
+        const { gateway, contract } = await getFabricContract('mychannel', 'landregistry', 'DisputeContract', user);
         try {
             await contract.submitTransaction(
                 'RaiseDispute',
@@ -30,7 +30,7 @@ export class DisputeService {
     }
 
     public async resolveDispute(disputeId: string, user: string) {
-        const { gateway, contract } = await getFabricContract('mychannel', 'DisputeContract', user);
+        const { gateway, contract } = await getFabricContract('mychannel', 'landregistry', 'DisputeContract', user);
         try {
             await contract.submitTransaction('ResolveDispute', disputeId);
             return { success: true, disputeId };

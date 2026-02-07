@@ -2,13 +2,21 @@ import { API_BASE_URL } from '../utils/constants';
 
 export const apiService = {
     get: async (endpoint: string) => {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`);
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Bypass-Tunnel-Reminder': 'true'
+            }
+        });
         return response.json();
     },
     post: async (endpoint: string, data: any) => {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'Bypass-Tunnel-Reminder': 'true'
+            },
             body: JSON.stringify(data),
         });
         return response.json();

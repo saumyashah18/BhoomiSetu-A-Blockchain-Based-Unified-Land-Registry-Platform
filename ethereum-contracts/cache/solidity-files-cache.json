@@ -6,7 +6,7 @@
       "contentHash": "1d49875a28c060d7f0fa1dcc0ada6821",
       "sourceName": "contracts/AnchorRegistry.sol",
       "solcConfig": {
-        "version": "0.8.0",
+        "version": "0.8.19",
         "settings": {
           "optimizer": {
             "enabled": false,

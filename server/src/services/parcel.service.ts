@@ -15,7 +15,7 @@ export class ParcelService {
     public async createParcel(data: any, user: string) {
         const hash = crypto.createHash('sha256').update(JSON.stringify(data) + Date.now()).digest('hex');
 
-        const { gateway, contract } = await getFabricContract('mychannel', 'ParcelContract', user);
+        const { gateway, contract } = await getFabricContract('mychannel', 'landregistry', 'ParcelContract', user);
         try {
             await contract.submitTransaction(
                 'CreateParcel',
@@ -35,7 +35,7 @@ export class ParcelService {
     }
 
     public async initiateTransfer(requestId: string, ulpin: string, newOwnerId: string, user: string) {
-        const { gateway, contract } = await getFabricContract('mychannel', 'ParcelContract', user);
+        const { gateway, contract } = await getFabricContract('mychannel', 'landregistry', 'ParcelContract', user);
         try {
             const newOwners = [{ ownerId: newOwnerId, ownershipType: 'FULL', sharePercentage: 100 }];
 
@@ -54,7 +54,7 @@ export class ParcelService {
     }
 
     public async approveTransfer(requestId: string, user: string) {
-        const { gateway, contract } = await getFabricContract('mychannel', 'ParcelContract', user);
+        const { gateway, contract } = await getFabricContract('mychannel', 'landregistry', 'ParcelContract', user);
         try {
             await contract.submitTransaction('ApproveTransfer', requestId);
 
@@ -69,7 +69,7 @@ export class ParcelService {
     }
 
     public async getParcel(ulpin: string, user: string) {
-        const { gateway, contract } = await getFabricContract('mychannel', 'ParcelContract', user);
+        const { gateway, contract } = await getFabricContract('mychannel', 'landregistry', 'ParcelContract', user);
         try {
             const result = await contract.evaluateTransaction('QueryParcel', ulpin);
             return JSON.parse(result.toString());

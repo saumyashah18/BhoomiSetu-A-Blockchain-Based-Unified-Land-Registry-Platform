@@ -12,10 +12,20 @@ router.get('/test-web3', async (req, res) => {
         const web3 = getWeb3Client();
         const isListening = await web3.eth.net.isListening();
         const accounts = await web3.eth.getAccounts();
+        const walletAccounts = Array.from({ length: web3.eth.accounts.wallet.length }, (_, i) => web3.eth.accounts.wallet[i]?.address);
+
         console.log('🔍 Debug: Testing Web3 connectivity...');
         if (isListening) {
-            console.log('✅ Web3 connection verified. Accounts found: ' + accounts.length);
-            res.json({ status: 'connected', accounts });
+            const allAccounts = [...accounts, ...walletAccounts.filter(a => !accounts.includes(a as string))];
+            let balances: { [key: string]: string } = {};
+            for (const acc of allAccounts) {
+                if (acc) {
+                    const bal = await web3.eth.getBalance(acc as string);
+                    balances[acc as string] = web3.utils.fromWei(bal, 'ether') + ' MATIC';
+                }
+            }
+            console.log('✅ Web3 connection verified. Accounts found: ' + allAccounts.length);
+            res.json({ status: 'connected', accounts: allAccounts, balances });
         } else {
             throw new Error('Web3 provider not listening');
         }
@@ -44,7 +54,7 @@ router.get('/test-fabric', async (req, res) => {
     const user = (req.query.user as string) || 'admin';
     try {
         console.log('🔍 Debug: Testing Fabric Gateway connectivity for user: ' + user);
-        const { gateway, contract } = await getFabricContract('mychannel', 'ParcelContract', user);
+        const { gateway, contract } = await getFabricContract('mychannel', 'landregistry', 'ParcelContract', user);
         // We'll just try to evaluate a non-existent parcel to check connectivity
         try {
             await contract.evaluateTransaction('ParcelExists', 'TEST_ULPIN');

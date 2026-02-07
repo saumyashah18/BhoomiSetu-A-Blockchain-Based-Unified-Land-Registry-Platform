@@ -17,7 +17,7 @@ export class ParcelContract extends Contract {
     public async CreateParcel(
         ctx: Context,
         ulpin: string,
-        area: number,
+        areaStr: string,
         location: string,
         ownerId: string,
         docHash: string
@@ -25,6 +25,11 @@ export class ParcelContract extends Contract {
         const exists = await this.ParcelExists(ctx, ulpin);
         if (exists) {
             throw new Error(`The parcel ${ulpin} already exists`);
+        }
+
+        const area = parseFloat(areaStr);
+        if (isNaN(area)) {
+            throw new Error(`Invalid area value: ${areaStr}`);
         }
 
         const parcel: Parcel = {
@@ -45,6 +50,28 @@ export class ParcelContract extends Contract {
         };
 
         await ctx.stub.putState(ulpin, Buffer.from(JSON.stringify(parcel)));
+    }
+
+    @Transaction(false)
+    @Returns('string')
+    public async GetAllParcels(ctx: Context): Promise<string> {
+        const allResults = [];
+        const iterator = await ctx.stub.getStateByRange('', '');
+        let result = await iterator.next();
+        while (!result.done) {
+            const strValue = Buffer.from(result.value.value.toString()).toString('utf8');
+            let record;
+            try {
+                record = JSON.parse(strValue);
+                if (record.docType === 'parcel') {
+                    allResults.push(record);
+                }
+            } catch (err) {
+                console.log(err);
+            }
+            result = await iterator.next();
+        }
+        return JSON.stringify(allResults);
     }
 
     @Transaction(false)

@@ -92,6 +92,12 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
                                 <Button variant="ghost" size="sm" onClick={handleLogout} className="text-red-400 hover:bg-red-500/10 hover:text-red-300">
                                     Logout
                                 </Button>
+                                <Link
+                                    to="/evaluation"
+                                    className={`px-4 py-2 rounded-full text-sm font-bold border transition-all ${location.pathname === '/evaluation' ? 'bg-accent/20 text-accent border-accent' : 'bg-accent/10 text-accent border-accent/30 hover:bg-accent/20'}`}
+                                >
+                                    🏆 Evaluation
+                                </Link>
                             </div>
                         </div>
                     </div>

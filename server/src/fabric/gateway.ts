@@ -4,7 +4,8 @@ import * as fs from 'fs';
 
 export async function getFabricContract(
     channelName: string,
-    contractName: string,
+    chaincodeName: string,
+    smartContractName: string | undefined,
     userName: string
 ): Promise<{ gateway: Gateway; contract: Contract }> {
     // Load connection profile
@@ -35,7 +36,9 @@ export async function getFabricContract(
     const network: Network = await gateway.getNetwork(channelName);
 
     // Get the contract from the network.
-    const contract: Contract = network.getContract(contractName);
+    const contract: Contract = smartContractName
+        ? network.getContract(chaincodeName, smartContractName)
+        : network.getContract(chaincodeName);
 
     return { gateway, contract };
 }
