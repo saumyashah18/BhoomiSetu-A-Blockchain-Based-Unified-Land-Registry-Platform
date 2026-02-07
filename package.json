@@ -1,0 +1,21 @@
+{
+  "name": "bhoomisetu",
+  "version": "1.0.0",
+  "description": "BhoomiSetu: A Decentralized Land Record & Property Rights Management System",
+  "scripts": {
+    "server:install": "cd server && npm install",
+    "chaincode:install": "cd chaincode/land-registry && npm install",
+    "install:all": "npm run server:install && npm run chaincode:install",
+    "server:dev": "cd server && npm run dev",
+    "chaincode:build": "cd chaincode/land-registry && npm run build"
+  },
+  "keywords": [
+    "blockchain",
+    "hyperledger",
+    "ethereum",
+    "land-registry",
+    "india"
+  ],
+  "author": "",
+  "license": "ISC"
+}
