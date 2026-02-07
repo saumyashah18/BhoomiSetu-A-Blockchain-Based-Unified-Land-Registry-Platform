@@ -43,7 +43,7 @@ class UnitService {
     }
     async createUnit(data, user) {
         const hash = crypto.createHash('sha256').update(JSON.stringify(data) + Date.now()).digest('hex');
-        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'UnitContract', user);
+        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'landregistry', 'UnitContract', user);
         try {
             await contract.submitTransaction('CreateUnit', data.unitId, data.parentUlpin, data.uds.toString(), user, hash);
             await this.anchorService.anchorFabricEvent(data.unitId, 'UNIT_CREATE', '0x' + hash);
@@ -54,7 +54,7 @@ class UnitService {
         }
     }
     async getUnit(unitId, user) {
-        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'UnitContract', user);
+        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'landregistry', 'UnitContract', user);
         try {
             const result = await contract.evaluateTransaction('QueryUnit', unitId);
             return JSON.parse(result.toString());
@@ -64,7 +64,7 @@ class UnitService {
         }
     }
     async getUnitsByParcel(parentUlpin, user) {
-        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'UnitContract', user);
+        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'landregistry', 'UnitContract', user);
         try {
             const result = await contract.evaluateTransaction('QueryUnitsByParcel', parentUlpin);
             return JSON.parse(result.toString());

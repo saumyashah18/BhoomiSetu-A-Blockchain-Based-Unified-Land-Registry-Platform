@@ -1,27 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GlassCard } from '../components/ui/GlassCard';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { Parcel } from '../types/parcel.types';
-import { useAuth } from '../contexts/AuthContext';
+import { getULPIN } from '../utils/geoUtils';
 
 export const CitizenDashboard: React.FC = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
+    const [properties, setProperties] = useState<Parcel[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    // Mock Data
-    const properties: Parcel[] = [
-        {
-            id: '1', parcelId: 'P001', ownerId: 'U001', address: '402, Titanium City Center, Satellite, Ahmedabad',
-            area: 1200, coordinates: [23.0300, 72.5176], status: 'active', registrationDate: '2023-01-01'
-        },
-        {
-            id: '3', parcelId: 'P003', ownerId: 'U001', address: '78, Shivalik Shilp, Iscon Cross Rd, Ahmedabad',
-            area: 3500, coordinates: [23.0258, 72.5074], status: 'pending', registrationDate: '2023-10-15'
-        }
-    ];
+    useEffect(() => {
+        const fetchProperties = async () => {
+            try {
+                const response = await fetch('/data/blocks_ownership.geojson');
+                const data = await response.json();
+
+                const mappedPromises = data.features.map(async (f: any) => {
+                    const ulpin = await getULPIN(f);
+
+                    // Extract coordinates for center point (rough approximation for display)
+                    let coords: [number, number] = [23.18, 72.64]; // Default
+                    try {
+                        if (f.geometry.type === 'MultiPolygon') {
+                            coords = [f.geometry.coordinates[0][0][0][1], f.geometry.coordinates[0][0][0][0]];
+                        } else if (f.geometry.type === 'Polygon') {
+                            coords = [f.geometry.coordinates[0][0][1], f.geometry.coordinates[0][0][0]];
+                        }
+                    } catch (e) {
+                        console.error("Error parsing coords for feature", f.properties.fid, e);
+                    }
+
+                    return {
+                        id: f.properties.fid.toString(),
+                        parcelId: ulpin,
+                        ownerId: 'U001', // Static for now
+                        address: f.properties.name || `Block ${f.properties.fid}`,
+                        area: Math.floor(Math.random() * 5000) + 1000, // Mock area as not in GeoJSON
+                        coordinates: coords,
+                        status: f.properties.Block_Type?.toLowerCase().includes('private') ? 'active' : 'pending',
+                        registrationDate: new Date().toISOString().split('T')[0],
+                        blockType: f.properties.Block_Type || 'Private Owned',
+                        ownership: f.properties.Block_Type?.includes('Private') ? 'Private' : 'Public'
+                    };
+                });
+
+                const mapped = await Promise.all(mappedPromises);
+                setProperties(mapped);
+            } catch (error) {
+                console.error("Error loading GeoJSON data:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProperties();
+    }, []);
 
     const filtered = properties.filter(p =>
         p.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -65,10 +102,16 @@ export const CitizenDashboard: React.FC = () => {
                 {filtered.map(p => (
                     <GlassCard key={p.id} hoverEffect className="group cursor-pointer" onClick={() => navigate(`/property/${p.id}`)}>
                         <div className="flex justify-between items-start mb-4">
-                            <Badge
-                                label={p.status.toUpperCase()}
-                                variant={p.status === 'active' ? 'success' : 'warning'}
-                            />
+                            <div className="flex flex-col items-end gap-2">
+                                <Badge
+                                    label={p.status.toUpperCase()}
+                                    variant={p.status === 'active' ? 'success' : 'warning'}
+                                />
+                                <Badge
+                                    label={(p as any).ownership.toUpperCase()}
+                                    variant={(p as any).ownership === 'Private' ? 'info' : 'neutral'}
+                                />
+                            </div>
                             <span className="text-xs text-text-muted font-mono bg-white/5 px-2 py-1 rounded">
                                 {p.parcelId}
                             </span>
@@ -79,6 +122,10 @@ export const CitizenDashboard: React.FC = () => {
                         </h3>
 
                         <div className="space-y-2 mb-6">
+                            <div className="flex justify-between text-sm">
+                                <span className="text-text-muted">Block</span>
+                                <span className="font-medium">{(p as any).blockType}</span>
+                            </div>
                             <div className="flex justify-between text-sm">
                                 <span className="text-text-muted">Area</span>
                                 <span className="font-medium">{p.area.toLocaleString()} sq.ft</span>

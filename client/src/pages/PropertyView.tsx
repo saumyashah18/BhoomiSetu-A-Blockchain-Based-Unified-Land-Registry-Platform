@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { GlassCard } from '../components/ui/GlassCard';
 import { Button } from '../components/ui/Button';
@@ -10,20 +10,91 @@ import { Ownership } from '../types/ownership.types';
 
 type TabType = 'overview' | 'timeline' | 'documents' | 'transfer' | 'legal';
 
+import { getULPIN } from '../utils/geoUtils';
+
+const getIndianName = (id: string, variant: 'owner' | 'prev' = 'owner') => {
+    const firstNames = [
+        "Aarav", "Vihaan", "Aditya", "Sai", "Arjun", "Reyansh", "Muhammad", "Aryan", "Krishna", "Ishaan",
+        "Shaurya", "Atharv", "Dhruv", "Kabir", "Ryaan", "Ansh", "Ayaan", "Vivaan", "Advik", "Aadi",
+        "Aanya", "Aadhya", "Saanvi", "Ananya", "Diya", "Fatima", "Pari", "Kiara", "Myra", "Riya",
+        "Sia", "Prisha", "Anika", "Angel", "Vanya", "Pihu", "Navya", "Aarohi", "Kavya", "Avni"
+    ];
+    const lastNames = [
+        "Patel", "Sharma", "Singh", "Kumar", "Das", "Gupta", "Rao", "Reddy", "Nair", "Iyer",
+        "Khan", "Shah", "Mehta", "Joshi", "Chopra", "Malhotra", "Verma", "Mishra", "Desai", "Bhat"
+    ];
+
+    // Simple deterministic hash based on ID
+    const numId = parseInt(id.replace(/\D/g, '') || '0');
+    const seed = variant === 'owner' ? numId : numId + 137; // Offset for different name
+
+    const firstName = firstNames[seed % firstNames.length];
+    const lastName = lastNames[(seed * 7) % lastNames.length];
+
+    return `${firstName} ${lastName}`;
+};
+
 export const PropertyView: React.FC = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<TabType>('overview');
+    const [parcel, setParcel] = useState<Parcel | null>(null);
+    const [feature, setFeature] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
 
-    // Mock Data
-    const parcel: Parcel = {
-        id: id || '1', parcelId: 'P001', ownerId: 'U001', address: '402, Titanium City Center, Satellite, Ahmedabad',
-        area: 1200, coordinates: [23.0300, 72.5176], status: 'active', registrationDate: '2023-01-01'
-    };
+    const ownerName = id ? getIndianName(id, 'owner') : 'Unknown Owner';
+    const prevOwnerName = id ? getIndianName(id, 'prev') : 'Previous Owner';
+    const ownerInitials = ownerName.split(' ').map(n => n[0]).join('');
+
+    useEffect(() => {
+        const fetchProperty = async () => {
+            try {
+                const response = await fetch('/data/blocks_ownership.geojson');
+                const data = await response.json();
+
+                const foundFeature = data.features.find((f: any) => f.properties.fid.toString() === id);
+
+                if (foundFeature) {
+                    const ulpin = await getULPIN(foundFeature);
+
+                    let coords: [number, number] = [23.18, 72.64];
+                    try {
+                        if (foundFeature.geometry.type === 'MultiPolygon') {
+                            coords = [foundFeature.geometry.coordinates[0][0][0][1], foundFeature.geometry.coordinates[0][0][0][0]];
+                        } else if (foundFeature.geometry.type === 'Polygon') {
+                            coords = [foundFeature.geometry.coordinates[0][0][1], foundFeature.geometry.coordinates[0][0][0]];
+                        }
+                    } catch (e) {
+                        console.error("Error parsing coords", e);
+                    }
+
+                    setFeature(foundFeature);
+                    setParcel({
+                        id: foundFeature.properties.fid.toString(),
+                        parcelId: ulpin,
+                        ownerId: `U${foundFeature.properties.fid.toString().padStart(3, '0')}`,
+                        address: foundFeature.properties.name || `Block ${foundFeature.properties.fid}`,
+                        area: Math.floor(Math.random() * 5000) + 1000,
+                        coordinates: coords,
+                        status: foundFeature.properties.Block_Type?.toLowerCase().includes('private') ? 'active' : 'pending',
+                        registrationDate: '2023-01-01',
+                        blockType: foundFeature.properties.Block_Type || 'Private Owned',
+                        ownership: foundFeature.properties.Block_Type?.includes('Private') ? 'Private' : 'Public'
+                    } as any);
+                }
+            } catch (error) {
+                console.error("Error fetching property", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProperty();
+    }, [id]);
 
     const history: Ownership[] = [
-        { id: 'h1', currentOwner: 'Jane Doe', previousOwner: 'John Smith', transferDate: '2023-05-15', transactionHash: '0x123...abc' },
-        { id: 'h2', currentOwner: 'John Smith', transferDate: '2023-01-01', transactionHash: '0x456...def' }
+        { id: 'h1', currentOwner: ownerName, previousOwner: prevOwnerName, transferDate: '2023-05-15', transactionHash: '0x123...abc' },
+        { id: 'h2', currentOwner: prevOwnerName, transferDate: '2023-01-01', transactionHash: '0x456...def' }
     ];
 
     const documents = [
@@ -36,6 +107,9 @@ export const PropertyView: React.FC = () => {
         { id: 1, type: 'Boundary Mismatch', status: 'Resolved', description: 'Minor variance in North-East corner aligned with survey 2022.' }
     ];
 
+    if (loading) return <div className="text-white text-center py-20">Loading Property Details...</div>;
+    if (!parcel) return <div className="text-white text-center py-20">Property not found.</div>;
+
     return (
         <div className="max-w-7xl mx-auto space-y-6 animate-in fade-in duration-500">
             <Button variant="ghost" onClick={() => navigate('/dashboard')} className="pl-0 hover:pl-2 transition-all text-text-muted hover:text-white">
@@ -47,7 +121,7 @@ export const PropertyView: React.FC = () => {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
                         <div className="flex items-center gap-3 mb-2">
-                            <h1 className="text-3xl font-bold text-slate-900">{parcel.address}</h1>
+                            <h1 className="text-3xl font-bold text-white">{parcel.address}</h1>
                             <Badge
                                 label={parcel.status.toUpperCase()}
                                 variant={parcel.status === 'active' ? 'success' : 'warning'}
@@ -78,7 +152,7 @@ export const PropertyView: React.FC = () => {
                             { id: 'overview', label: 'Overview' },
                             { id: 'timeline', label: 'Ownership Timeline' },
                             { id: 'documents', label: 'Documents' },
-                            { id: 'transfer', label: 'Initiate Transfer' },
+                            { id: 'transfer', label: 'Request Transfer' },
                             { id: 'legal', label: 'Legal Status' },
                         ].map(tab => (
                             <button
@@ -103,24 +177,24 @@ export const PropertyView: React.FC = () => {
                             <div className="space-y-6 animate-in slide-in-from-bottom-5 duration-500">
                                 <GlassCard className="p-0 overflow-hidden h-[400px] relative border border-white/10">
                                     <div className="absolute inset-0 z-0">
-                                        <ParcelMap center={parcel.coordinates} zoom={16} />
+                                        <ParcelMap center={parcel.coordinates} zoom={18} feature={feature} />
                                     </div>
-                                    <div className="absolute bottom-4 left-4 inline-block px-3 py-1 bg-black/70 backdrop-blur-md rounded border border-white/10 text-xs text-white/90">
+                                    <div className="absolute bottom-4 left-4 inline-block px-3 py-1 bg-black/70 backdrop-blur-md rounded border border-white/10 text-xs text-white/90 z-10">
                                         Satellite Verified Imagery
                                     </div>
                                 </GlassCard>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <GlassCard>
-                                        <h3 className="text-lg font-semibold mb-4 text-slate-900">Property Details</h3>
+                                        <h3 className="text-lg font-semibold mb-4 text-white">Property Details</h3>
                                         <div className="space-y-3 text-sm">
                                             <div className="flex justify-between border-b border-white/5 pb-2">
                                                 <span className="text-text-muted">Total Area</span>
                                                 <span>{parcel.area.toLocaleString()} sq.ft</span>
                                             </div>
                                             <div className="flex justify-between border-b border-white/5 pb-2">
-                                                <span className="text-text-muted">Zone Type</span>
-                                                <span>Residential Zone A</span>
+                                                <span className="text-text-muted">Block Type</span>
+                                                <span>{(parcel as any).blockType}</span>
                                             </div>
                                             <div className="flex justify-between border-b border-white/5 pb-2">
                                                 <span className="text-text-muted">Registration Date</span>
@@ -129,13 +203,13 @@ export const PropertyView: React.FC = () => {
                                         </div>
                                     </GlassCard>
                                     <GlassCard>
-                                        <h3 className="text-lg font-semibold mb-4 text-slate-900">Owner Information</h3>
+                                        <h3 className="text-lg font-semibold mb-4 text-white">Owner Information</h3>
                                         <div className="flex items-center gap-4 mb-4">
                                             <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
-                                                JD
+                                                {ownerInitials}
                                             </div>
                                             <div>
-                                                <p className="font-semibold">{history[0]?.currentOwner || 'Current Owner'}</p>
+                                                <p className="font-semibold">{ownerName}</p>
                                                 <p className="text-xs text-text-muted">UID: {parcel.ownerId}</p>
                                             </div>
                                         </div>

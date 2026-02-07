@@ -7,15 +7,22 @@ import { Input } from '../components/ui/Input';
 export const Transfer: React.FC = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [recipient, setRecipient] = useState('');
+    const [ulpin, setUlpin] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
     const [isSuccess, setIsSuccess] = useState(false);
+    const [uploadedFiles, setUploadedFiles] = useState<string[]>([]);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files.length > 0) {
+            setUploadedFiles(Array.from(e.target.files).map(f => f.name));
+        }
+    };
 
     const handleTransfer = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsProcessing(true);
 
-        // Simulate API call
+        // Simulate API call to Registrar
         setTimeout(() => {
             setIsProcessing(false);
             setIsSuccess(true);
@@ -31,9 +38,9 @@ export const Transfer: React.FC = () => {
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                         </svg>
                     </div>
-                    <h2 className="text-2xl font-bold mb-2">Transfer Initiated</h2>
+                    <h2 className="text-2xl font-bold mb-2">Request Submitted</h2>
                     <p className="text-text-muted mb-8">
-                        Ownership transfer request for Parcel ID <span className="text-white font-mono">{id}</span> has been successfully submitted to the registrar for approval.
+                        Your ownership transfer request for Parcel ID <span className="text-white font-mono">{id}</span> has been sent to the Registrar. You will be notified once the verification is complete.
                     </p>
                     <Button fullWidth onClick={() => navigate('/dashboard')}>
                         Return to Dashboard
@@ -46,13 +53,13 @@ export const Transfer: React.FC = () => {
     return (
         <div className="max-w-2xl mx-auto pt-10 animate-in fade-in duration-500">
             <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 pl-0 hover:pl-2 transition-all">
-                ← Cancel Transfer
+                ← Cancel Request
             </Button>
 
             <GlassCard>
                 <div className="border-b border-white/5 pb-6 mb-8">
-                    <h1 className="text-2xl font-bold">Transfer Ownership</h1>
-                    <p className="text-text-muted mt-1">Provide recipient details for secure asset handover.</p>
+                    <h1 className="text-2xl font-bold">Request Transfer</h1>
+                    <p className="text-text-muted mt-1">Submit documents to the Registrar for ownership transfer approval.</p>
                 </div>
 
                 <form onSubmit={handleTransfer} className="space-y-6">
@@ -65,12 +72,40 @@ export const Transfer: React.FC = () => {
                     </div>
 
                     <Input
-                        label="Recipient Wallet Address / User ID"
-                        placeholder="e.g. 0x71C... or U005"
-                        value={recipient}
-                        onChange={(e) => setRecipient(e.target.value)}
+                        label="Verify ULPIN"
+                        placeholder="Enter property ULPIN for verification (e.g. 1234...)"
+                        value={ulpin}
+                        onChange={(e) => setUlpin(e.target.value)}
                         required
                     />
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-text-muted">Upload Supporting Documents</label>
+                        <div className="border-2 border-dashed border-white/10 rounded-lg p-8 text-center hover:border-primary/50 transition-colors cursor-pointer bg-surface/30 relative">
+                            <input
+                                type="file"
+                                multiple
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                onChange={handleFileChange}
+                            />
+                            {uploadedFiles.length > 0 ? (
+                                <div className="space-y-2">
+                                    <svg className="w-10 h-10 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <p className="text-white font-medium">{uploadedFiles.length} file(s) selected</p>
+                                    <p className="text-xs text-text-muted">{uploadedFiles.join(', ')}</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    <svg className="w-10 h-10 text-text-muted mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                    <p className="text-text-muted">Click or drag to upload Sale Deed / Identity Proof</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
 
                     <div className="p-4 bg-blue-500/5 border border-blue-500/10 rounded-lg">
                         <div className="flex gap-3">
@@ -78,19 +113,19 @@ export const Transfer: React.FC = () => {
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <p className="text-sm text-text-muted">
-                                This action is irreversible once approved by the registrar. Please verify the recipient address carefully.
+                                This request will be forwarded to the Registrar for manual verification. Ensure all uploaded documents are valid.
                             </p>
                         </div>
                     </div>
 
-                    <Button type="submit" fullWidth disabled={!recipient || isProcessing} size="lg">
+                    <Button type="submit" fullWidth disabled={!ulpin || uploadedFiles.length === 0 || isProcessing} size="lg">
                         {isProcessing ? (
                             <div className="flex items-center gap-2">
                                 <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                                Processing Request...
+                                Sending Request...
                             </div>
                         ) : (
-                            'Initiate Transfer'
+                            'Submit to Registrar'
                         )}
                     </Button>
                 </form>

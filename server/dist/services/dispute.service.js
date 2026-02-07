@@ -43,7 +43,7 @@ class DisputeService {
     }
     async raiseDispute(assetId, reason, user) {
         const disputeId = crypto.createHash('sha256').update(`DISPUTE-${assetId}-${Date.now()}`).digest('hex');
-        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'DisputeContract', user);
+        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'landregistry', 'DisputeContract', user);
         try {
             await contract.submitTransaction('RaiseDispute', disputeId, assetId, reason);
             await this.anchorService.anchorFabricEvent(assetId, 'DISPUTE_RAISED', '0x' + disputeId);
@@ -54,7 +54,7 @@ class DisputeService {
         }
     }
     async resolveDispute(disputeId, user) {
-        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'DisputeContract', user);
+        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'landregistry', 'DisputeContract', user);
         try {
             await contract.submitTransaction('ResolveDispute', disputeId);
             return { success: true, disputeId };

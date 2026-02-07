@@ -45,7 +45,7 @@ class ParcelService {
     }
     async createParcel(data, user) {
         const hash = crypto.createHash('sha256').update(JSON.stringify(data) + Date.now()).digest('hex');
-        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'ParcelContract', user);
+        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'landregistry', 'ParcelContract', user);
         try {
             await contract.submitTransaction('CreateParcel', data.ulpin, data.area.toString(), data.location, user, hash);
             await this.anchorService.anchorFabricEvent(data.ulpin, 'CREATE', '0x' + hash);
@@ -56,7 +56,7 @@ class ParcelService {
         }
     }
     async initiateTransfer(requestId, ulpin, newOwnerId, user) {
-        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'ParcelContract', user);
+        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'landregistry', 'ParcelContract', user);
         try {
             const newOwners = [{ ownerId: newOwnerId, ownershipType: 'FULL', sharePercentage: 100 }];
             await contract.submitTransaction('InitiateTransfer', requestId, ulpin, JSON.stringify(newOwners), JSON.stringify([]) // Supporting docs
@@ -68,7 +68,7 @@ class ParcelService {
         }
     }
     async approveTransfer(requestId, user) {
-        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'ParcelContract', user);
+        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'landregistry', 'ParcelContract', user);
         try {
             await contract.submitTransaction('ApproveTransfer', requestId);
             // Generate hash for public proof
@@ -81,7 +81,7 @@ class ParcelService {
         }
     }
     async getParcel(ulpin, user) {
-        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'ParcelContract', user);
+        const { gateway, contract } = await (0, gateway_1.getFabricContract)('mychannel', 'landregistry', 'ParcelContract', user);
         try {
             const result = await contract.evaluateTransaction('QueryParcel', ulpin);
             return JSON.parse(result.toString());

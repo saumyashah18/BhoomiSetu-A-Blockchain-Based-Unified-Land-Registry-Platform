@@ -1,40 +1,57 @@
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-
-// Fix Leaflet marker icon issue
 import L from 'leaflet';
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+import { useEffect } from 'react';
 
-let DefaultIcon = L.icon({
-    iconUrl: icon,
-    shadowUrl: iconShadow,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41]
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
+// Help helper to auto-fit bounds
+const ZoomToFeature: React.FC<{ feature: any }> = ({ feature }) => {
+    const map = useMap();
+    useEffect(() => {
+        if (feature) {
+            const layer = L.geoJSON(feature);
+            map.fitBounds(layer.getBounds(), { padding: [20, 20], maxZoom: 18 });
+        }
+    }, [feature, map]);
+    return null;
+};
 
 interface ParcelMapProps {
     center: [number, number];
     zoom?: number;
+    feature?: any;
 }
 
-export const ParcelMap: React.FC<ParcelMapProps> = ({ center, zoom = 13 }) => {
+export const ParcelMap: React.FC<ParcelMapProps> = ({ center, zoom = 16, feature }) => {
+    const satelliteUrl = 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+    const attribution = 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community';
+
     return (
-        <div className="h-[400px] w-full rounded-lg overflow-hidden border">
-            <MapContainer center={center} zoom={zoom} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
-                <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <Marker position={center}>
-                    <Popup>
-                        Selected Parcel Location
-                    </Popup>
-                </Marker>
+        <div className="h-full w-full">
+            <MapContainer
+                center={center}
+                zoom={zoom}
+                scrollWheelZoom={true}
+                style={{ height: '100%', width: '100%' }}
+                zoomControl={false}
+            >
+                <TileLayer attribution={attribution} url={satelliteUrl} />
+                {feature && (
+                    <>
+                        <GeoJSON
+                            data={feature}
+                            style={{
+                                color: '#3b82f6',
+                                weight: 3,
+                                opacity: 1,
+                                fillColor: '#3b82f6',
+                                fillOpacity: 0.2
+                            }}
+                        />
+                        <ZoomToFeature feature={feature} />
+                    </>
+                )}
             </MapContainer>
         </div>
     );
 };
+

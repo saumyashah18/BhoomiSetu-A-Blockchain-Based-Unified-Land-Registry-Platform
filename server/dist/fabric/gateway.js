@@ -37,7 +37,7 @@ exports.getFabricContract = getFabricContract;
 const fabric_network_1 = require("fabric-network");
 const path = __importStar(require("path"));
 const fs = __importStar(require("fs"));
-async function getFabricContract(channelName, contractName, userName) {
+async function getFabricContract(channelName, chaincodeName, smartContractName, userName) {
     // Load connection profile
     const ccpPath = process.env.FABRIC_CCP_PATH || path.resolve(__dirname, '..', '..', '..', 'fabric-samples', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
     const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
@@ -60,6 +60,8 @@ async function getFabricContract(channelName, contractName, userName) {
     // Get the network (channel) our contract is deployed to.
     const network = await gateway.getNetwork(channelName);
     // Get the contract from the network.
-    const contract = network.getContract(contractName);
+    const contract = smartContractName
+        ? network.getContract(chaincodeName, smartContractName)
+        : network.getContract(chaincodeName);
     return { gateway, contract };
 }
