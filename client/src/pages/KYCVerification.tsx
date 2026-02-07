@@ -6,15 +6,18 @@ import { Input } from '../components/ui/Input';
 import { Badge } from '../components/ui/Badge';
 import { aadhaarService } from '../services/mockAadhaarService';
 import { digiLockerService } from '../services/mockDigiLockerService';
+import { kycService } from '../services/kycService';
 import { useAuth } from '../contexts/AuthContext';
 
 export const KYCVerification: React.FC = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [step, setStep] = useState(1);
     const [aadhaar, setAadhaar] = useState('');
     const [otp, setOtp] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [requestId, setRequestId] = useState('');
 
     const handleSendOtp = async () => {
         const cleanAadhaar = aadhaar.replace(/\s/g, '');
@@ -23,25 +26,40 @@ export const KYCVerification: React.FC = () => {
             return;
         }
         setLoading(true);
-        await aadhaarService.sendOtp();
-        setLoading(false);
-        setStep(2);
+        try {
+            const response = await kycService.initiate(cleanAadhaar, user?.uid || 'anonymous');
+            setRequestId(response.id);
+            // In a real Digio flow, we'd open their SDK here. 
+            // For now, we simulate the OTP step to show the integrated flow.
+            setStep(2);
+        } catch (err: any) {
+            setError(err.message || 'Failed to initiate verification');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleVerifyOtp = async () => {
         setLoading(true);
-        const isValid = await aadhaarService.verifyOtp(otp);
-        setLoading(false);
-        if (isValid) {
-            setStep(3);
-        } else {
-            setError("Invalid OTP. Try '123456'");
+        // Simulate OTP verification and then checking status from our backend
+        try {
+            const status = await kycService.getStatus(requestId);
+            if (status.status === 'completed') {
+                setStep(3);
+            } else {
+                setError("Verification pending or failed. Try '123456'");
+            }
+        } catch (err: any) {
+            setError('Error verifying identity');
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleDigiLocker = async () => {
         setLoading(true);
-        await digiLockerService.connect();
+        // Simulate Digio linking DigiLocker
+        await new Promise(resolve => setTimeout(resolve, 1500));
         setLoading(false);
         setStep(4);
     };

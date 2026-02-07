@@ -1,13 +1,42 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import {
+    User,
+    signOut,
+    RecaptchaVerifier,
+    signInWithPhoneNumber,
+    ConfirmationResult
+} from 'firebase/auth';
 import { auth } from '../config/firebase';
 
+// Registrar session info from OIDC
+export interface RegistrarSession {
+    sessionToken: string;
+    claims: {
+        sub: string;
+        name: string;
+        email?: string;
+        department?: string;
+        designation: string;
+        jurisdiction: string;
+    };
+    walletAddress?: string;
+}
+
 interface AuthContextType {
+    // Citizen auth (phone)
     user: User | null;
     loading: boolean;
-    signInWithGoogle: (role: 'citizen' | 'registrar') => Promise<void>;
+    signInWithPhone: (phoneNumber: string, recaptchaContainerId: string) => Promise<ConfirmationResult>;
+    verifyOtp: (confirmationResult: ConfirmationResult, otp: string) => Promise<void>;
+
+    // Registrar auth (OIDC)
+    registrarSession: RegistrarSession | null;
+    setRegistrarSession: (session: RegistrarSession | null) => void;
+
+    // Common
     logout: () => Promise<void>;
     userRole: 'citizen' | 'registrar' | null;
+    isRegistrar: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,6 +47,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [userRole, setUserRole] = useState<'citizen' | 'registrar' | null>(() => {
         return localStorage.getItem('userRole') as 'citizen' | 'registrar' | null;
     });
+    const [registrarSession, setRegistrarSessionState] = useState<RegistrarSession | null>(() => {
+        const stored = localStorage.getItem('registrarSession');
+        return stored ? JSON.parse(stored) : null;
+    });
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged((user) => {
@@ -27,21 +60,75 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return unsubscribe;
     }, []);
 
-    const signInWithGoogle = async (role: 'citizen' | 'registrar') => {
-        const provider = new GoogleAuthProvider();
+    // If registrar session exists, set role to registrar
+    useEffect(() => {
+        if (registrarSession) {
+            setUserRole('registrar');
+            localStorage.setItem('userRole', 'registrar');
+        }
+    }, [registrarSession]);
+
+    const setupRecaptcha = (containerId: string) => {
+        if ((window as any).recaptchaVerifier) {
+            (window as any).recaptchaVerifier.clear();
+        }
+        return new RecaptchaVerifier(auth, containerId, {
+            size: 'invisible',
+            callback: () => {
+                console.log('Recaptcha resolved');
+            }
+        });
+    };
+
+    // Citizen phone auth
+    const signInWithPhone = async (phoneNumber: string, recaptchaContainerId: string): Promise<ConfirmationResult> => {
         try {
-            await signInWithPopup(auth, provider);
-            setUserRole(role);
-            localStorage.setItem('userRole', role);
+            const verifier = setupRecaptcha(recaptchaContainerId);
+            const confirmation = await signInWithPhoneNumber(auth, phoneNumber, verifier);
+            return confirmation;
         } catch (error) {
-            console.error("Error signing in with Google", error);
+            console.error("Error sending OTP", error);
             throw error;
+        }
+    };
+
+    // Citizen OTP verification - always sets role to 'citizen'
+    const verifyOtp = async (confirmationResult: ConfirmationResult, otp: string) => {
+        try {
+            await confirmationResult.confirm(otp);
+            setUserRole('citizen');
+            localStorage.setItem('userRole', 'citizen');
+        } catch (error) {
+            console.error("Error verifying OTP", error);
+            throw error;
+        }
+    };
+
+    // Set registrar session (called after OIDC callback)
+    const setRegistrarSession = (session: RegistrarSession | null) => {
+        setRegistrarSessionState(session);
+        if (session) {
+            localStorage.setItem('registrarSession', JSON.stringify(session));
+            localStorage.setItem('registrarSessionToken', session.sessionToken);
+            setUserRole('registrar');
+            localStorage.setItem('userRole', 'registrar');
+        } else {
+            localStorage.removeItem('registrarSession');
+            localStorage.removeItem('registrarSessionToken');
         }
     };
 
     const logout = async () => {
         try {
-            await signOut(auth);
+            // Logout from Firebase (for citizens)
+            if (user) {
+                await signOut(auth);
+            }
+
+            // Clear registrar session
+            setRegistrarSession(null);
+
+            // Clear role
             setUserRole(null);
             localStorage.removeItem('userRole');
         } catch (error) {
@@ -49,8 +136,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const isRegistrar = userRole === 'registrar' && registrarSession !== null;
+
     return (
-        <AuthContext.Provider value={{ user, loading, signInWithGoogle, logout, userRole }}>
+        <AuthContext.Provider value={{
+            user,
+            loading,
+            signInWithPhone,
+            verifyOtp,
+            registrarSession,
+            setRegistrarSession,
+            logout,
+            userRole,
+            isRegistrar
+        }}>
             {!loading && children}
         </AuthContext.Provider>
     );

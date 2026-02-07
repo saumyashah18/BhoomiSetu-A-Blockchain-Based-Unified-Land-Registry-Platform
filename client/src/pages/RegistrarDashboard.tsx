@@ -48,39 +48,57 @@ export const RegistrarDashboard: React.FC = () => {
     };
 
     return (
-        <div className="flex flex-col lg:flex-row gap-6 h-[calc(100vh-140px)] animate-in fade-in duration-500">
-
-            {/* Sidebar Navigation */}
-            <GlassCard className="lg:w-64 flex-shrink-0 p-0 overflow-hidden flex flex-col h-full bg-[#0F172A]/80 backdrop-blur-xl border border-white/5">
-                <div className="p-4 border-b border-white/5 bg-gradient-to-r from-primary/10 to-transparent">
-                    <h2 className="font-bold text-lg text-white">Registrar Console</h2>
-                    <p className="text-xs text-text-muted">Admin Operations</p>
+        <div className="flex flex-col gap-6 animate-in fade-in duration-500 min-h-[calc(100vh-140px)]">
+            {/* KYC Banner - Registrar Role */}
+            <GlassCard className="bg-gradient-to-r from-purple-600/20 to-primary/20 border-primary/30 flex justify-between items-center p-4">
+                <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-white">Registrar Identity Verification</h3>
+                        <p className="text-xs text-blue-200">Authenticate your digital signature credentials for secure approvals.</p>
+                    </div>
                 </div>
-                <div className="flex-1 overflow-y-auto py-2">
-                    {menuItems.map(item => (
-                        <button
-                            key={item.id}
-                            onClick={() => setActiveTab(item.id)}
-                            className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-all duration-200 border-l-2 ${activeTab === item.id
-                                ? 'bg-white/5 border-primary text-white'
-                                : 'border-transparent text-text-muted hover:bg-white/5 hover:text-white'
-                                }`}
-                        >
-                            {/* Placeholder Icons - Replace with Lucide later if needed */}
-                            <span className={`w-2 h-2 rounded-full ${activeTab === item.id ? 'bg-primary' : 'bg-white/20'}`}></span>
-                            <span className="text-sm font-medium">{item.label}</span>
-                        </button>
-                    ))}
-                </div>
+                <Button size="sm" onClick={() => window.location.href = '/kyc'}>Verify Now</Button>
             </GlassCard>
 
-            {/* Main Content Area */}
-            <div className="flex-1 h-full overflow-hidden flex flex-col">
-                <GlassCard className="h-full overflow-y-auto p-6 lg:p-8 bg-[#0F172A]/50 backdrop-blur-md">
-                    <div className="max-w-4xl mx-auto">
-                        {renderContent()}
+            <div className="flex flex-col lg:flex-row gap-6 h-full">
+
+                {/* Sidebar Navigation */}
+                <GlassCard className="lg:w-64 flex-shrink-0 p-0 overflow-hidden flex flex-col h-full bg-[#0F172A]/80 backdrop-blur-xl border border-white/5">
+                    <div className="p-4 border-b border-white/5 bg-gradient-to-r from-primary/10 to-transparent">
+                        <h2 className="font-bold text-lg text-white">Registrar Console</h2>
+                        <p className="text-xs text-text-muted">Admin Operations</p>
+                    </div>
+                    <div className="flex-1 overflow-y-auto py-2">
+                        {menuItems.map(item => (
+                            <button
+                                key={item.id}
+                                onClick={() => setActiveTab(item.id)}
+                                className={`w-full text-left px-4 py-3 flex items-center gap-3 transition-all duration-200 border-l-2 ${activeTab === item.id
+                                    ? 'bg-white/5 border-primary text-white'
+                                    : 'border-transparent text-text-muted hover:bg-white/5 hover:text-white'
+                                    }`}
+                            >
+                                {/* Placeholder Icons - Replace with Lucide later if needed */}
+                                <span className={`w-2 h-2 rounded-full ${activeTab === item.id ? 'bg-primary' : 'bg-white/20'}`}></span>
+                                <span className="text-sm font-medium">{item.label}</span>
+                            </button>
+                        ))}
                     </div>
                 </GlassCard>
+
+                {/* Main Content Area */}
+                <div className="flex-1 h-full overflow-hidden flex flex-col">
+                    <GlassCard className="h-full overflow-y-auto p-6 lg:p-8 bg-[#0F172A]/50 backdrop-blur-md">
+                        <div className="max-w-4xl mx-auto">
+                            {renderContent()}
+                        </div>
+                    </GlassCard>
+                </div>
             </div>
         </div>
     );
