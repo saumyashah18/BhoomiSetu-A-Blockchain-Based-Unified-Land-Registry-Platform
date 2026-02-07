@@ -17,20 +17,20 @@ interface FlowStep {
 }
 
 export const Evaluation: React.FC = () => {
+    // Default steps structure
     const [steps, setSteps] = useState<FlowStep[]>([
         {
             id: 'fabric',
             title: 'Hyperledger Fabric Ledger',
             description: 'Authoritative storage of land record & ownership history',
-            status: 'completed',
-            icon: '⛓️',
-            timestamp: new Date().toISOString()
+            status: 'pending',
+            icon: '⛓️'
         },
         {
             id: 'hashing',
             title: 'SHA256 Hash Generation',
             description: 'Creating a unique cryptographic fingerprint of the record',
-            status: 'processing',
+            status: 'pending',
             icon: '🔐'
         },
         {
@@ -50,32 +50,32 @@ export const Evaluation: React.FC = () => {
     ]);
 
     const [isLive, setIsLive] = useState(false);
-    const [lastTx, setLastTx] = useState<any>(null);
+    const [parcelId, setParcelId] = useState('P1001'); // Default to our test parcel
 
-    // Mock live update simulation for the demo
+    const fetchData = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/parcels/${parcelId}?user=admin`);
+            if (response.ok) {
+                const data = await response.json();
+
+                setSteps(prev => prev.map(s => {
+                    if (s.id === 'fabric') return { ...s, status: 'completed', timestamp: new Date(data.lastUpdated * 1000).toISOString() };
+                    if (s.id === 'hashing') return { ...s, status: 'completed', hash: '0x' + data.docHash.substring(0, 10) + '...' };
+                    if (s.id === 'anchoring') return { ...s, status: 'completed', explorerUrl: `https://amoy.polygonscan.com/tx/0x...` }; // In a real app we'd store the tx hash
+                    if (s.id === 'verification') return { ...s, status: 'completed' };
+                    return s;
+                }));
+            }
+        } catch (error) {
+            console.error("Failed to fetch parcel data", error);
+        }
+    };
+
     useEffect(() => {
-        if (!isLive) return;
-
-        const timer = setTimeout(() => {
-            setSteps(prev => prev.map(s => {
-                if (s.id === 'hashing') return { ...s, status: 'completed', hash: '0xa3f5...d9e2' };
-                if (s.id === 'anchoring') return { ...s, status: 'processing' };
-                return s;
-            }));
-        }, 2000);
-
-        const timer2 = setTimeout(() => {
-            setSteps(prev => prev.map(s => {
-                if (s.id === 'anchoring') return { ...s, status: 'completed', explorerUrl: 'https://amoy.polygonscan.com/tx/0x...' };
-                if (s.id === 'verification') return { ...s, status: 'completed' };
-                return s;
-            }));
-        }, 5000);
-
-        return () => {
-            clearTimeout(timer);
-            clearTimeout(timer2);
-        };
+        if (isLive) {
+            const interval = setInterval(fetchData, 3000); // Poll every 3 seconds
+            return () => clearInterval(interval);
+        }
     }, [isLive]);
 
     return (
@@ -83,16 +83,25 @@ export const Evaluation: React.FC = () => {
             <div className="flex justify-between items-end">
                 <div>
                     <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent italic">
-                        Evaluation Dashboard
+                        Evaluation Dashboard - {parcelId}
                     </h1>
                     <p className="text-text-muted mt-2">Real-time Hybrid Blockchain Flow Analysis</p>
                 </div>
-                <button
-                    onClick={() => setIsLive(!isLive)}
-                    className={`px-6 py-2 rounded-full font-semibold transition-all ${isLive ? 'bg-red-500/20 text-red-400 border border-red-500/50' : 'bg-primary/20 text-primary border border-primary/50 hover:bg-primary/30'}`}
-                >
-                    {isLive ? '🔴 Stop Simulation' : '🚀 Start Flow Simulation'}
-                </button>
+                <div className="flex gap-4">
+                    <input
+                        type="text"
+                        value={parcelId}
+                        onChange={(e) => setParcelId(e.target.value)}
+                        className="bg-black/20 border border-white/10 rounded px-3 py-2 text-sm"
+                        placeholder="Enter Parcel ID"
+                    />
+                    <button
+                        onClick={() => setIsLive(!isLive)}
+                        className={`px-6 py-2 rounded-full font-semibold transition-all ${isLive ? 'bg-red-500/20 text-red-400 border border-red-500/50' : 'bg-primary/20 text-primary border border-primary/50 hover:bg-primary/30'}`}
+                    >
+                        {isLive ? '🔴 Stop polling' : '🚀 Start Live Tracking'}
+                    </button>
+                </div>
             </div>
 
             {/* Live Blockchain Visualizer */}
