@@ -1,0 +1,116 @@
+{
+    "type": "FeatureCollection",
+    "features": [
+        {
+            "type": "Feature",
+            "properties": {
+                "fid": 4000,
+                "Block_Type": "Agriculture",
+                "ownership_type": "Private Owned",
+                "name": "Farming Land A",
+                "ULPIN": "LALON2318B4000"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            72.6455,
+                            23.1815
+                        ],
+                        [
+                            72.6475,
+                            23.1815
+                        ],
+                        [
+                            72.6475,
+                            23.1835
+                        ],
+                        [
+                            72.6455,
+                            23.1835
+                        ],
+                        [
+                            72.6455,
+                            23.1815
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "fid": 4001,
+                "Block_Type": "Agriculture",
+                "ownership_type": "Private Owned",
+                "name": "Farming Land B",
+                "ULPIN": "LALON2318B4001"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            72.6480,
+                            23.1815
+                        ],
+                        [
+                            72.6500,
+                            23.1815
+                        ],
+                        [
+                            72.6500,
+                            23.1835
+                        ],
+                        [
+                            72.6480,
+                            23.1835
+                        ],
+                        [
+                            72.6480,
+                            23.1815
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "properties": {
+                "fid": 4002,
+                "Block_Type": "Agriculture",
+                "ownership_type": "Private Owned",
+                "name": "Farming Land C",
+                "ULPIN": "LALON2318B4002"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            72.6455,
+                            23.1790
+                        ],
+                        [
+                            72.6475,
+                            23.1790
+                        ],
+                        [
+                            72.6475,
+                            23.1810
+                        ],
+                        [
+                            72.6455,
+                            23.1810
+                        ],
+                        [
+                            72.6455,
+                            23.1790
+                        ]
+                    ]
+                ]
+            }
+        }
+    ]
+}

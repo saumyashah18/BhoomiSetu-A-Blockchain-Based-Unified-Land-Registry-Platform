@@ -9,6 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.UnitContract = void 0;
 const fabric_contract_api_1 = require("fabric-contract-api");
 let UnitContract = class UnitContract extends fabric_contract_api_1.Contract {
     async QueryUnit(ctx, unitId) {
@@ -71,33 +72,33 @@ let UnitContract = class UnitContract extends fabric_contract_api_1.Contract {
         }
     }
 };
+exports.UnitContract = UnitContract;
 __decorate([
-    fabric_contract_api_1.Transaction(false),
+    (0, fabric_contract_api_1.Transaction)(false),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String]),
     __metadata("design:returntype", Promise)
 ], UnitContract.prototype, "QueryUnit", null);
 __decorate([
-    fabric_contract_api_1.Transaction(),
+    (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String, Number, String, String]),
     __metadata("design:returntype", Promise)
 ], UnitContract.prototype, "CreateUnit", null);
 __decorate([
-    fabric_contract_api_1.Transaction(false),
-    fabric_contract_api_1.Returns('boolean'),
+    (0, fabric_contract_api_1.Transaction)(false),
+    (0, fabric_contract_api_1.Returns)('boolean'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String]),
     __metadata("design:returntype", Promise)
 ], UnitContract.prototype, "UnitExists", null);
 __decorate([
-    fabric_contract_api_1.Transaction(false),
+    (0, fabric_contract_api_1.Transaction)(false),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String]),
     __metadata("design:returntype", Promise)
 ], UnitContract.prototype, "QueryUnitsByParcel", null);
-UnitContract = __decorate([
-    fabric_contract_api_1.Info({ title: 'UnitContract', description: 'Smart contract for managing apartments/units' })
+exports.UnitContract = UnitContract = __decorate([
+    (0, fabric_contract_api_1.Info)({ title: 'UnitContract', description: 'Smart contract for managing apartments/units' })
 ], UnitContract);
-exports.UnitContract = UnitContract;
 //# sourceMappingURL=unitContract.js.map

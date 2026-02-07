@@ -9,6 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.DisputeContract = void 0;
 const fabric_contract_api_1 = require("fabric-contract-api");
 let DisputeContract = class DisputeContract extends fabric_contract_api_1.Contract {
     async RaiseDispute(ctx, disputeId, assetId, reason) {
@@ -56,20 +57,20 @@ let DisputeContract = class DisputeContract extends fabric_contract_api_1.Contra
         ctx.stub.setEvent('DisputeResolved', Buffer.from(JSON.stringify({ assetId: dispute.assetId, disputeId })));
     }
 };
+exports.DisputeContract = DisputeContract;
 __decorate([
-    fabric_contract_api_1.Transaction(),
+    (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String, String]),
     __metadata("design:returntype", Promise)
 ], DisputeContract.prototype, "RaiseDispute", null);
 __decorate([
-    fabric_contract_api_1.Transaction(),
+    (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String]),
     __metadata("design:returntype", Promise)
 ], DisputeContract.prototype, "ResolveDispute", null);
-DisputeContract = __decorate([
-    fabric_contract_api_1.Info({ title: 'DisputeContract', description: 'Smart contract for managing disputes' })
+exports.DisputeContract = DisputeContract = __decorate([
+    (0, fabric_contract_api_1.Info)({ title: 'DisputeContract', description: 'Smart contract for managing disputes' })
 ], DisputeContract);
-exports.DisputeContract = DisputeContract;
 //# sourceMappingURL=disputeContract.js.map

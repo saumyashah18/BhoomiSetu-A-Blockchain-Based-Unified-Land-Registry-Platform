@@ -9,6 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.TransferContract = void 0;
 const fabric_contract_api_1 = require("fabric-contract-api");
 let TransferContract = class TransferContract extends fabric_contract_api_1.Contract {
     async TransferAsset(ctx, assetId, newOwnerId, docHash) {
@@ -48,14 +49,14 @@ let TransferContract = class TransferContract extends fabric_contract_api_1.Cont
         ctx.stub.setEvent('AssetTransferred', Buffer.from(JSON.stringify(eventPayload)));
     }
 };
+exports.TransferContract = TransferContract;
 __decorate([
-    fabric_contract_api_1.Transaction(),
+    (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String, String]),
     __metadata("design:returntype", Promise)
 ], TransferContract.prototype, "TransferAsset", null);
-TransferContract = __decorate([
-    fabric_contract_api_1.Info({ title: 'TransferContract', description: 'Smart contract for property transfers' })
+exports.TransferContract = TransferContract = __decorate([
+    (0, fabric_contract_api_1.Info)({ title: 'TransferContract', description: 'Smart contract for property transfers' })
 ], TransferContract);
-exports.TransferContract = TransferContract;
 //# sourceMappingURL=transferContract.js.map
