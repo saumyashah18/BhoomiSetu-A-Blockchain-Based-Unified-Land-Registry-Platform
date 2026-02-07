@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.contracts = void 0;
 const parcelContract_1 = require("./parcelContract");
 const unitContract_1 = require("./unitContract");
 const transferContract_1 = require("./transferContract");

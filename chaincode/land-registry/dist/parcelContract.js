@@ -9,6 +9,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.ParcelContract = void 0;
 const fabric_contract_api_1 = require("fabric-contract-api");
 let ParcelContract = class ParcelContract extends fabric_contract_api_1.Contract {
     async QueryParcel(ctx, ulpin) {
@@ -211,7 +212,7 @@ let ParcelContract = class ParcelContract extends fabric_contract_api_1.Contract
                 ulpin: childUlpins[i],
                 area: childrenData[i].area,
                 location: childrenData[i].location,
-                owners: parent.owners,
+                owners: parent.owners, // Heirs or split owners will be handled in subsequent transfers if needed
                 status: 'ACTIVE',
                 encumbrances: [],
                 disputes: [],
@@ -234,81 +235,81 @@ let ParcelContract = class ParcelContract extends fabric_contract_api_1.Contract
         await ctx.stub.putState(ulpin, Buffer.from(JSON.stringify(parcel)));
     }
 };
+exports.ParcelContract = ParcelContract;
 __decorate([
-    fabric_contract_api_1.Transaction(false),
+    (0, fabric_contract_api_1.Transaction)(false),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String]),
     __metadata("design:returntype", Promise)
 ], ParcelContract.prototype, "QueryParcel", null);
 __decorate([
-    fabric_contract_api_1.Transaction(),
+    (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, Number, String, String, String]),
     __metadata("design:returntype", Promise)
 ], ParcelContract.prototype, "CreateParcel", null);
 __decorate([
-    fabric_contract_api_1.Transaction(false),
-    fabric_contract_api_1.Returns('boolean'),
+    (0, fabric_contract_api_1.Transaction)(false),
+    (0, fabric_contract_api_1.Returns)('boolean'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String]),
     __metadata("design:returntype", Promise)
 ], ParcelContract.prototype, "ParcelExists", null);
 __decorate([
-    fabric_contract_api_1.Transaction(),
+    (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], ParcelContract.prototype, "InitiateTransfer", null);
 __decorate([
-    fabric_contract_api_1.Transaction(),
+    (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], ParcelContract.prototype, "SubmitInheritanceRequest", null);
 __decorate([
-    fabric_contract_api_1.Transaction(),
+    (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String]),
     __metadata("design:returntype", Promise)
 ], ParcelContract.prototype, "ApproveTransfer", null);
 __decorate([
-    fabric_contract_api_1.Transaction(),
+    (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String, String]),
     __metadata("design:returntype", Promise)
 ], ParcelContract.prototype, "FlagDispute", null);
 __decorate([
-    fabric_contract_api_1.Transaction(),
+    (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String]),
     __metadata("design:returntype", Promise)
 ], ParcelContract.prototype, "ResolveDispute", null);
 __decorate([
-    fabric_contract_api_1.Transaction(),
+    (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String, String, String]),
     __metadata("design:returntype", Promise)
 ], ParcelContract.prototype, "AddEncumbrance", null);
 __decorate([
-    fabric_contract_api_1.Transaction(),
+    (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String, Number, String, String]),
     __metadata("design:returntype", Promise)
 ], ParcelContract.prototype, "RegisterUnit", null);
 __decorate([
-    fabric_contract_api_1.Transaction(),
+    (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String, String]),
     __metadata("design:returntype", Promise)
 ], ParcelContract.prototype, "PartitionLand", null);
 __decorate([
-    fabric_contract_api_1.Transaction(),
+    (0, fabric_contract_api_1.Transaction)(),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [fabric_contract_api_1.Context, String, String]),
     __metadata("design:returntype", Promise)
 ], ParcelContract.prototype, "UpdateStatus", null);
-ParcelContract = __decorate([
-    fabric_contract_api_1.Info({ title: 'ParcelContract', description: 'Smart contract for managing land parcels' })
+exports.ParcelContract = ParcelContract = __decorate([
+    (0, fabric_contract_api_1.Info)({ title: 'ParcelContract', description: 'Smart contract for managing land parcels' })
 ], ParcelContract);
-exports.ParcelContract = ParcelContract;
 //# sourceMappingURL=parcelContract.js.map
