@@ -52,15 +52,19 @@ app.use((err: any, req: Request, res: Response, next: any) => {
     res.status(500).json({
         success: false,
         error: 'Global Server Error',
-        message: process.env.NODE_ENV === 'production' ? 'An internal error occurred' : err.message
+        message: err.message,
+        stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack
     });
 });
 
 // Root Route
 app.get('/', (req: Request, res: Response) => {
+    console.log('GET / requested');
     res.json({
         message: 'Welcome to BhoomiSetu API',
-        version: '1.0.0',
+        version: '1.0.2',
+        env: process.env.NODE_ENV,
+        vercel: !!process.env.VERCEL,
         docs: '/health'
     });
 });
@@ -71,10 +75,11 @@ app.get('/health', async (req: Request, res: Response) => {
     const healthStatus: any = {
         status: 'UP',
         timestamp: new Date(),
+        version: '1.0.2',
         services: {
             backend: 'OK',
             ethereum: 'UNKNOWN',
-            ipfs: 'OK' // IPFS service logs connection in constructor
+            ipfs: 'OK'
         }
     };
 
@@ -83,7 +88,7 @@ app.get('/health', async (req: Request, res: Response) => {
         await web3.eth.net.isListening();
         healthStatus.services.ethereum = 'CONNECTED';
     } catch {
-        healthStatus.services.ethereum = 'DISCONNECTED';
+        healthStatus.services.ethereum = 'MOCKED_OR_ERROR';
     }
 
     res.status(200).json(healthStatus);
@@ -92,9 +97,12 @@ app.get('/health', async (req: Request, res: Response) => {
 // Export app for Vercel
 export default app;
 
+console.log('🚀 App setup complete. Preparing to listen...');
+
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
     app.listen(port, () => {
-        console.log(`BhoomiSetu Backend listening at http://localhost:${port}`);
+        console.log(`✅ BhoomiSetu Backend listening at http://localhost:${port}`);
     });
 }
+
 
