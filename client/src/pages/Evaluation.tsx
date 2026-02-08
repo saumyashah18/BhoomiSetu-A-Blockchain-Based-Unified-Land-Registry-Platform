@@ -83,7 +83,7 @@ export const Evaluation: React.FC = () => {
             }
         } catch (error) {
             console.error('Error starting tracking:', error);
-            alert('Connection failed. Please ensure the backend server is running at ' + API_BASE_URL);
+            alert(`Connection failed to: ${API_BASE_URL}\n\n1. Ensure your backend server is running.\n2. If using localtunnel, make sure you have authorized the tunnel in your browser (visit the API URL directly first).\n3. Check if the VITE_API_URL environment variable is set correctly in your Vercel/Render deployment.`);
         }
     };
 

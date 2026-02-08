@@ -62,6 +62,12 @@ app.get('/health', async (req: Request, res: Response) => {
     res.status(200).json(healthStatus);
 });
 
-app.listen(port, () => {
-    console.log(`BhoomiSetu Backend listening at http://localhost:${port}`);
-});
+// Export app for Vercel
+export default app;
+
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    app.listen(port, () => {
+        console.log(`BhoomiSetu Backend listening at http://localhost:${port}`);
+    });
+}
+
