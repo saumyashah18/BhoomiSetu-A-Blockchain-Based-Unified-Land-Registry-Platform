@@ -1,4 +1,3 @@
-import { getFabricContract } from '../fabric/gateway';
 import { AnchorService } from '../ethereum/anchorService';
 import * as crypto from 'crypto';
 

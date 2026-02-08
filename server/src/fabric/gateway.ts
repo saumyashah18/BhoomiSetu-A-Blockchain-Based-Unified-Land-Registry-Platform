@@ -1,4 +1,3 @@
-import { Gateway, Wallets, Network, Contract } from 'fabric-network';
 import * as path from 'path';
 import * as fs from 'fs';
 
@@ -7,7 +6,10 @@ export async function getFabricContract(
     chaincodeName: string,
     smartContractName: string | undefined,
     userName: string
-): Promise<{ gateway: Gateway; contract: Contract }> {
+): Promise<{ gateway: any; contract: any }> {
+    // Dynamic import to avoid loading fabric-network on app boot (fixes Vercel crash)
+    const { Gateway, Wallets } = await import('fabric-network');
+
     // Load connection profile
     const ccpPath = process.env.FABRIC_CCP_PATH || path.resolve(__dirname, '..', '..', '..', 'fabric-samples', 'test-network', 'organizations', 'peerOrganizations', 'org1.example.com', 'connection-org1.json');
     const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
