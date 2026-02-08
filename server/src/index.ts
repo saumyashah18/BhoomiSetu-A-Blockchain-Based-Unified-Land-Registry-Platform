@@ -1,9 +1,16 @@
+console.log('🚀 BhoomiSetu Backend is booting...');
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+
+console.log('📦 Loading modules...');
+dotenv.config();
+console.log('✅ Environment loaded');
+
+console.log('🛣️  Loading routes...');
 import parcelRoutes from './routes/parcel.routes';
 import unitRoutes from './routes/unit.routes';
 import transferRoutes from './routes/transfer.routes';
@@ -14,8 +21,8 @@ import kycRoutes from './routes/kyc.routes';
 import authRoutes from './routes/auth.routes';
 import evaluationRoutes from './routes/evaluation.routes';
 import { getWeb3Client } from './ethereum/web3Client';
+console.log('✅ Routes loaded');
 
-dotenv.config();
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -38,6 +45,16 @@ app.use('/api/debug', debugRoutes);
 app.use('/api/kyc', kycRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/evaluation', evaluationRoutes);
+
+// Global Error Handler
+app.use((err: any, req: Request, res: Response, next: any) => {
+    console.error('❌ GLOBAL ERROR:', err);
+    res.status(500).json({
+        success: false,
+        error: 'Global Server Error',
+        message: process.env.NODE_ENV === 'production' ? 'An internal error occurred' : err.message
+    });
+});
 
 // Root Route
 app.get('/', (req: Request, res: Response) => {

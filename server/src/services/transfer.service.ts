@@ -1,9 +1,7 @@
 import { getFabricContract } from '../fabric/gateway';
 import { AnchorService } from '../ethereum/anchorService';
-import { PrismaClient } from '@prisma/client';
-import * as crypto from 'crypto';
+import getPrisma from '../db';
 
-const prisma = new PrismaClient();
 
 export class TransferService {
     private anchorService: AnchorService;
@@ -17,7 +15,7 @@ export class TransferService {
         const requestId = 'REQ_' + Date.now();
 
         // 1. Save request to Database (Source of Truth for Dashboard if Blockchain is offline)
-        await prisma.transferRequest.create({
+        await getPrisma().transferRequest.create({
             data: {
                 requestId,
                 assetId,
@@ -54,14 +52,14 @@ export class TransferService {
     }
 
     public async getPendingTransfers() {
-        return await prisma.transferRequest.findMany({
+        return await getPrisma().transferRequest.findMany({
             where: { status: 'PENDING' },
             orderBy: { requestDate: 'desc' }
         });
     }
 
     public async updateTransferStatus(requestId: string, status: 'APPROVED' | 'REJECTED', remarks?: string) {
-        return await prisma.transferRequest.update({
+        return await getPrisma().transferRequest.update({
             where: { requestId },
             data: { status, remarks }
         });
