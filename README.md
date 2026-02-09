@@ -45,3 +45,7 @@ The system is designed as a hybrid architecture running locally for Fabric and A
 
 ---
 **Technical Documentation**: Detailed spec can be found in [BhoomiSetu_Technical_Documentation.md](file:///c:/Users/hp/Downloads/BhoomiSetu-A-Blockchain-Based-Unified-Land-Registry-Platform-main/BhoomiSetu-A-Blockchain-Based-Unified-Land-Registry-Platform-main/docs/BhoomiSetu_Technical_Documentation.md).
+**
+To check Prototype outputs and prototype demo video google drive link :- https://drive.google.com/drive/folders/1NB0nilYRR_0Up9eSIkb--_tJgMFObBkx **
+
+
